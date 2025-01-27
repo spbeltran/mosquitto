@@ -11,9 +11,6 @@ Broker:
 Client library:
 - Fix cmake build on OS X. Closes #3125.
 
-Build:
-- Fix build on NetBSD
-
 
 2.0.19 - 2024-10-02
 ===================
