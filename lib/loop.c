@@ -61,7 +61,7 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 	FD_ZERO(&readfds);
 	FD_ZERO(&writefds);
 	if(mosq->sock != INVALID_SOCKET){
-		maxfd = mosq->sock;
+		maxfd = (int)mosq->sock;
 		FD_SET(mosq->sock, &readfds);
 		if(mosq->want_write){
 			FD_SET(mosq->sock, &writefds);
@@ -100,7 +100,7 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 		 * call to publish() etc. */
 		FD_SET(mosq->sockpairR, &readfds);
 		if((int)mosq->sockpairR > maxfd){
-			maxfd = mosq->sockpairR;
+			maxfd = (int)mosq->sockpairR;
 		}
 	}
 
@@ -122,11 +122,11 @@ int mosquitto_loop(struct mosquitto *mosq, int timeout, int max_packets)
 		timeout_ms = 0;
 	}
 
-	local_timeout.tv_sec = timeout_ms/1000;
+	local_timeout.tv_sec = (long)timeout_ms/1000;
 #ifdef HAVE_PSELECT
 	local_timeout.tv_nsec = (timeout_ms-local_timeout.tv_sec*1000)*1000000;
 #else
-	local_timeout.tv_usec = (timeout_ms-local_timeout.tv_sec*1000)*1000;
+	local_timeout.tv_usec = (long)(timeout_ms-local_timeout.tv_sec*1000)*1000;
 #endif
 
 #ifdef HAVE_PSELECT
@@ -199,7 +199,7 @@ static int interruptible_sleep(struct mosquitto *mosq, time_t reconnect_delay)
 	while(mosq->sockpairR != INVALID_SOCKET && recv(mosq->sockpairR, &pairbuf, 1, 0) > 0);
 #endif
 
-	local_timeout.tv_sec = reconnect_delay;
+	local_timeout.tv_sec = (long)reconnect_delay;
 #ifdef HAVE_PSELECT
 	local_timeout.tv_nsec = 0;
 #else
@@ -211,7 +211,7 @@ static int interruptible_sleep(struct mosquitto *mosq, time_t reconnect_delay)
 		/* sockpairR is used to break out of select() before the
 		 * timeout, when mosquitto_loop_stop() is called */
 		FD_SET(mosq->sockpairR, &readfds);
-		maxfd = mosq->sockpairR;
+		maxfd = (int)mosq->sockpairR;
 	}
 #ifdef HAVE_PSELECT
 	fdcount = pselect(maxfd+1, &readfds, NULL, NULL, &local_timeout, NULL);

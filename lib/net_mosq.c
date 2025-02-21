@@ -433,7 +433,7 @@ static int net__try_connect_tcp(const char *host, uint16_t port, mosq_sock_t *so
 
 		if(bind_address){
 			for(rp_bind = ainfo_bind; rp_bind != NULL; rp_bind = rp_bind->ai_next){
-				if(bind(*sock, rp_bind->ai_addr, rp_bind->ai_addrlen) == 0){
+				if(bind(*sock, rp_bind->ai_addr, (int)rp_bind->ai_addrlen) == 0){
 					break;
 				}
 			}
@@ -451,7 +451,7 @@ static int net__try_connect_tcp(const char *host, uint16_t port, mosq_sock_t *so
 			}
 		}
 
-		rc = connect(*sock, rp->ai_addr, rp->ai_addrlen);
+		rc = connect(*sock, rp->ai_addr, (int)rp->ai_addrlen);
 #ifdef WIN32
 		errno = WSAGetLastError();
 #endif
@@ -876,7 +876,7 @@ int net__socket_connect_step3(struct mosquitto *mosq, const char *host)
 		}
 
 		SSL_set_ex_data(mosq->ssl, tls_ex_index_mosq, mosq);
-		bio = BIO_new_socket(mosq->sock, BIO_NOCLOSE);
+		bio = BIO_new_socket((int)mosq->sock, BIO_NOCLOSE);
 		if(!bio){
 			net__socket_close(mosq);
 			net__print_ssl_error(mosq);
@@ -989,7 +989,7 @@ ssize_t net__read(struct mosquitto *mosq, void *buf, size_t count)
 #ifndef WIN32
 	return read(mosq->sock, buf, count);
 #else
-	return recv(mosq->sock, buf, count, 0);
+	return recv(mosq->sock, buf, (int)count, 0);
 #endif
 
 #ifdef WITH_TLS
@@ -1018,7 +1018,7 @@ ssize_t net__write(struct mosquitto *mosq, const void *buf, size_t count)
 		/* Call normal write/send */
 #endif
 
-	return send(mosq->sock, buf, count, MSG_NOSIGNAL);
+	return send(mosq->sock, buf, (int)count, MSG_NOSIGNAL);
 
 #ifdef WITH_TLS
 	}
