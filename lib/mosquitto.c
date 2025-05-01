@@ -208,7 +208,7 @@ int mosquitto_reinitialise(struct mosquitto *mosq, const char *id, bool clean_st
 	mosq->want_write = false;
 	mosq->tls_ocsp_required = false;
 #endif
-#ifdef WITH_THREADING
+#if defined WITH_THREADING || defined _WIN32
 	pthread_mutex_init(&mosq->callback_mutex, NULL);
 	pthread_mutex_init(&mosq->log_callback_mutex, NULL);
 	pthread_mutex_init(&mosq->state_mutex, NULL);
@@ -218,7 +218,9 @@ int mosquitto_reinitialise(struct mosquitto *mosq, const char *id, bool clean_st
 	pthread_mutex_init(&mosq->msgs_in.mutex, NULL);
 	pthread_mutex_init(&mosq->msgs_out.mutex, NULL);
 	pthread_mutex_init(&mosq->mid_mutex, NULL);
+#ifdef WITH_THREADING
 	mosq->thread_id = pthread_self();
+#endif
 #endif
 	/* This must be after pthread_mutex_init(), otherwise the log mutex may be
 	 * used before being initialised. */

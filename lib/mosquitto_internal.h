@@ -205,6 +205,8 @@ struct mosquitto_msg_data{
 	int queue_len;
 #  ifdef WITH_THREADING
 	pthread_mutex_t mutex;
+#  elif _WIN32
+	CRITICAL_SECTION mutex;
 #  endif
 #endif
 	int inflight_quota;
@@ -281,6 +283,14 @@ struct mosquitto {
 	pthread_mutex_t state_mutex;
 	pthread_mutex_t mid_mutex;
 	pthread_t thread_id;
+#elif _WIN32
+	CRITICAL_SECTION callback_mutex;
+	CRITICAL_SECTION log_callback_mutex;
+	CRITICAL_SECTION msgtime_mutex;
+	CRITICAL_SECTION out_packet_mutex;
+	CRITICAL_SECTION current_out_packet_mutex;
+	CRITICAL_SECTION state_mutex;
+	CRITICAL_SECTION mid_mutex;
 #endif
 	bool clean_start;
 	time_t session_expiry_time;
